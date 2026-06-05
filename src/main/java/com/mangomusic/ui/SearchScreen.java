@@ -160,7 +160,7 @@ public class SearchScreen {
         InputValidator.clearScreen();
         ConsoleColors.printSection("View User's Recent Plays");
 
-        int userId = InputValidator.getIntInRange("\nEnter user ID: ", 1, Integer.MAX_VALUE);
+        int userId = InputValidator.getIntInRange("\nEnter user ID: ", 1, Integer.MAX_VALUE); // Max users is 700?
         int limit = InputValidator.getIntInRange("Number of plays to show (max 50): ", 1, 50);
 
         List<AlbumPlay> plays = albumPlayDao.getUserRecentPlays(userId, limit);
