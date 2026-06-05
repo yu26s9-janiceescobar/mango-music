@@ -25,26 +25,24 @@ public class UserDao {
                 "WHERE username LIKE ? OR email LIKE ? " +
                 "ORDER BY username";
 
-        try {
-            Connection connection = dataManager.getConnection();
+        try (Connection connection = dataManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)
+        ){
+            statement.setString(1, "%" + username + "%");
+            statement.setString(2, "%" + username + "%");
 
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
+            try (ResultSet results = statement.executeQuery()) {
+                while (results.next()) {
+                    int userId = results.getInt("user_id");
+                    String user = results.getString("username");
+                    String email = results.getString("email");
+                    LocalDate signupDate = results.getDate("signup_date").toLocalDate();
+                    String subscriptionType = results.getString("subscription_type");
+                    String country = results.getString("country");
 
-                statement.setString(1, "%" + username + "%");
-                statement.setString(1, "%" + username + "%");
-
-                try (ResultSet results = statement.executeQuery()) {
-                    while (results.next()) {
-                        int userId = results.getInt("user_id");
-                        String user = results.getString("username");
-                        String email = results.getString("email");
-                        LocalDate signupDate = results.getDate("signup_date").toLocalDate();
-                        String subscriptionType = results.getString("subscription_type");
-                        String country = results.getString("country");
-
-                        users.add(new User(userId, user, email, signupDate, subscriptionType, country));
-                    }
+                    users.add(new User(userId, user, email, signupDate, subscriptionType, country));
                 }
+
             }
 
         } catch (SQLException e) {
