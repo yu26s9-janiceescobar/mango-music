@@ -24,14 +24,15 @@ public class ArtistDao {
                 "WHERE name LIKE ? " +
                 "ORDER BY name";
 
-        try {
-            Connection connection = dataManager.getConnection();
+        try(
+                Connection connection = dataManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)
+        ) {
+            statement.setString(1, "%" + searchTerm + "%");
 
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
-
-                statement.setString(1, "%" + searchTerm + "%");
-
-                ResultSet results = statement.executeQuery();
+            try (
+                    ResultSet results = statement.executeQuery()
+            ) {
 
                 while (results.next()) {
                     int artistId = results.getInt("artist_id");
@@ -55,15 +56,13 @@ public class ArtistDao {
         List<String> genres = new ArrayList<>();
         String query = "SELECT DISTINCT primary_genre FROM artists ORDER BY primary_genre";
 
-        try {
-            Connection connection = dataManager.getConnection();
-
-            try (PreparedStatement statement = connection.prepareStatement(query);
-                 ResultSet results = statement.executeQuery()) {
-
-                while (results.next()) {
-                    genres.add(results.getString("primary_genre"));
-                }
+        try (
+                Connection connection = dataManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(query);
+                ResultSet results = statement.executeQuery()
+        ){
+            while (results.next()) {
+                genres.add(results.getString("primary_genre"));
             }
 
         } catch (SQLException e) {
