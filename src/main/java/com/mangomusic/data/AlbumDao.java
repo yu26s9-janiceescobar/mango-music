@@ -26,23 +26,21 @@ public class AlbumDao {
                 "WHERE al.artist_id = ? " +
                 "ORDER BY al.release_year DESC";
 
-        try {
-            Connection connection = dataManager.getConnection();
+        try(
+                Connection connection = dataManager.getConnection();
+                PreparedStatement statement = connection.prepareStatement(query)
+        ) {
+            statement.setInt(1, artistId);
 
-            try (PreparedStatement statement = connection.prepareStatement(query)) {
+            try (ResultSet results = statement.executeQuery()) {
+                while (results.next()) {
+                    int albumId = results.getInt("album_id");
+                    int artId = results.getInt("artist_id");
+                    String title = results.getString("title");
+                    int releaseYear = results.getInt("release_year");
+                    String artistName = results.getString("artist_name");
 
-                statement.setInt(1, artistId);
-
-                try (ResultSet results = statement.executeQuery()) {
-                    while (results.next()) {
-                        int albumId = results.getInt("album_id");
-                        int artId = results.getInt("artist_id");
-                        String title = results.getString("title");
-                        int releaseYear = results.getInt("release_year");
-                        String artistName = results.getString("artist");
-
-                        albums.add(new Album(albumId, artId, title, releaseYear, artistName));
-                    }
+                    albums.add(new Album(albumId, artId, title, releaseYear, artistName));
                 }
             }
 
